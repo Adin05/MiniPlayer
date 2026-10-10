@@ -58,6 +58,7 @@ Hasil: `dist\MiniPlayer.exe` (diabaikan git). PC target tetap butuh VLC + ffmpeg
 ```
 MiniPlayer/
 ├── main.py           # seluruh aplikasi
+├── icon.ico/.png     # ikon app + exe
 ├── requirements.txt  # python-vlc, pynput
 ├── jalankan.bat      # install + run cepat
 ├── config.json       # ingatan app (diabaikan git, dibuat otomatis)

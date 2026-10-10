@@ -40,6 +40,17 @@ if getattr(sys, "frozen", False):
 else:
     APP_DIR = Path(__file__).resolve().parent
 CONFIG_PATH = APP_DIR / "config.json"
+
+
+def res_path(name: str) -> Path:
+    """Path resource: dari bundle PyInstaller (_MEIPASS) bila frozen, else samping source/exe."""
+    try:
+        base = getattr(sys, "_MEIPASS", None)
+        if base:
+            return Path(base) / name
+    except Exception:
+        pass
+    return APP_DIR / name
 VIDEO_EXTS = {".mp4", ".mkv", ".avi", ".mov", ".wmv", ".flv",
               ".webm", ".m4v", ".mpg", ".mpeg", ".3gp", ".ts", ".ogv"}
 
@@ -98,6 +109,12 @@ class MiniPlayer:
     def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("MiniPlayer 🎬")
+        try:
+            _ico = res_path("icon.ico")
+            if _ico.exists():
+                self.root.iconbitmap(str(_ico))
+        except Exception:
+            pass
         self.root.geometry("1150x750")
         self.root.minsize(960, 620)
 
@@ -1478,6 +1495,11 @@ class MiniPlayer:
 
 def main():
     if sys.platform.startswith("win"):
+        # Identitas taskbar (agar pin/ikon taskbar konsisten, tidak generik)
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("MiniPlayer.VideoPlayer")
+        except Exception:
+            pass
         # Samakan koordinat Tk dengan piksel fisik kursor (penting di layar berskala 125%+,
         # kalau tidak klik-video meleset dari area video).
         try:
