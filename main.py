@@ -103,6 +103,7 @@ class MiniPlayer:
 
         self.cfg = load_config()
         self.playlist: list[Path] = []
+        self.playlist_folder: Path | None = None
         self.index = -1
         self.is_seeking = False
         self.last_clip: Path | None = None
@@ -156,6 +157,7 @@ class MiniPlayer:
             files = self._scan_videos(Path(start_folder))
             if files:
                 self.playlist = files
+                self.playlist_folder = Path(start_folder)
                 self._refresh_playlist_ui()
                 # cari index file terakhir
                 start_idx = 0
@@ -442,16 +444,22 @@ class MiniPlayer:
 
     # ============ Folder / playlist ============
     def _scan_videos(self, folder: Path) -> list[Path]:
+        """List semua video di folder + seluruh subfolder-nya (rekursif)."""
+        out: list[Path] = []
         try:
-            files = [p for p in sorted(folder.iterdir())
-                     if p.is_file() and p.suffix.lower() in VIDEO_EXTS]
-            return files
-        except Exception:
-            return []
+            for p in sorted(folder.rglob("*")):
+                try:
+                    if p.is_file() and p.suffix.lower() in VIDEO_EXTS:
+                        out.append(p)
+                except OSError:
+                    continue
+        except OSError:
+            pass
+        return out
 
     def open_folder(self):
         initial = self.cfg.get("last_folder") or str(Path.home())
-        folder = filedialog.askdirectory(title="Pilih folder berisi video", initialdir=initial)
+        folder = filedialog.askdirectory(title="Pilih folder video (termasuk subfolder)", initialdir=initial)
         if not folder:
             return
         files = self._scan_videos(Path(folder))
@@ -459,6 +467,7 @@ class MiniPlayer:
             messagebox.showinfo("Kosong", f"Tidak ada video di:\n{folder}\n\nEkstensi: {', '.join(sorted(VIDEO_EXTS))}")
             return
         self.playlist = files
+        self.playlist_folder = Path(folder)
         self.cfg["last_folder"] = folder
         save_config(self.cfg)
         self._refresh_playlist_ui()
@@ -475,6 +484,7 @@ class MiniPlayer:
             messagebox.showinfo("Info", f"Folder terakhir kosong:\n{last}")
             return
         self.playlist = files
+        self.playlist_folder = Path(last)
         self._refresh_playlist_ui()
         self.play_index(0)
         self.status(f"Dibuka kembali: {last}")
@@ -482,7 +492,13 @@ class MiniPlayer:
     def _refresh_playlist_ui(self):
         self.listbox.delete(0, tk.END)
         for p in self.playlist:
-            self.listbox.insert(tk.END, p.name)
+            try:
+                if self.playlist_folder is not None:
+                    self.listbox.insert(tk.END, str(p.relative_to(self.playlist_folder)))
+                else:
+                    self.listbox.insert(tk.END, p.name)
+            except ValueError:
+                self.listbox.insert(tk.END, p.name)
         self._refresh_finfo()
 
     def _refresh_finfo(self):
