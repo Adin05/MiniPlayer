@@ -1,0 +1,6 @@
+python-vlc>=3.0.0
+pynput>=1.7.0  # untuk scroll global di mana saja selama window aktif
+# Opsional, untuk upload otomatis ke YouTube via API:
+# google-api-python-client
+# google-auth-httplib2
+# google-auth-oauthlib

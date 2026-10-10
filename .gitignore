@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+pip-wheel-metadata/
+*.egg-info/
+dist-info/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# MiniPlayer runtime (khusus mesin masing-masing, jangan di-commit)
+config.json
+token.pickle
+
+# Kredensial Google (JANGAN pernah di-commit)
+client_secrets.json
+
+# Media (biar repo tetap ringan)
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+*.m4v
+*.mpg
+*.mpeg
+*.3gp
+*.ts
+*.ogv
+
+# Windows / macOS
+Thumbs.db
+Desktop.ini
+.DS_Store
